@@ -8,8 +8,15 @@ import win32com.client
 from PySide6.QtWidgets import QApplication, QFileDialog, QListWidgetItem, QAbstractItemView, QSizePolicy, QMessageBox
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtGui import QIcon, QPixmap, QImage, QShortcut, QKeySequence
-from PySide6.QtCore import Qt, QSize, QThread, Signal, QObject, QEvent
+from PySide6.QtCore import Qt, QSize, QThread, Signal, QObject, QEvent, QFile
 
+def get_resource_path(relative_path):
+    """ Visszaadja a fájl útvonalát, működik fejlesztés alatt és lefordított .exe-ként is. """
+    if hasattr(sys, '_MEIPASS'):
+        # Ha exe-ként fut, a PyInstaller ideiglenes mappájában keresi
+        return os.path.join(sys._MEIPASS, relative_path)
+    # Ha simán futtatod, a jelenlegi mappában keresi
+    return os.path.join(os.path.abspath("."), relative_path)
 
 # ==========================================
 # 1. HÁTTÉRSZÁL (KIBŐVÍTVE OFFICE KONVERZIÓVAL)
@@ -112,7 +119,17 @@ class DropFilter(QObject):
 class PDFEditorApp:
     def __init__(self):
         loader = QUiLoader()
-        self.window = loader.load("mainwindow.ui")
+        # A betöltés mostantól a segédfüggvényen keresztül történik:
+        ui_path = get_resource_path("mainwindow.ui")
+
+        ui_file = QFile(ui_path)
+        if not ui_file.open(QFile.ReadOnly):
+            print(f"HIBA: Nem sikerült megnyitni a UI fájlt: {ui_path}")
+            sys.exit(-1)
+
+        loader = QUiLoader()
+        self.window = loader.load(ui_file)
+        ui_file.close()
 
         self.window.actionPDF_Hozzaadasa.triggered.connect(self.add_pdf_dialog)
         self.window.actionMentes.triggered.connect(self.save_pdf)
@@ -266,6 +283,7 @@ class PDFEditorApp:
             "Súgó és Funkciók",   # Az ablak címe
             sugo_szoveg           # A tartalom
         )
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     editor = PDFEditorApp()
