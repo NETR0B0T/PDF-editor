@@ -1,0 +1,1 @@
+python -m PyInstaller --noconsole --onefile --add-data "mainwindow.ui;." widget.py
