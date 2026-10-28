@@ -1,0 +1,20 @@
+1. Lépés: Hozzunk létre egy tiszta Venv-et
+Futtasd le ezt a parancsot a projekted mappájában (D:\PDF_editor\PDF_editor):
+
+python -m venv venv
+
+2. Lépés: Aktiváljuk a Venv-et
+Aktiválnunk kell, hogy a következő parancsok már ebbe a tiszta környezetbe telepítsenek:
+
+venv\Scripts\activate
+
+3. Lépés: Szükséges csomagok telepítése a Venv-be
+Mivel ez egy teljesen új, üres környezet, fel kell telepítenünk ide a programodhoz szükséges három külső csomagot:
+
+python -m pip install --upgrade pip
+python -m pip install PySide6 PyMuPDF pywin32 pyinstaller
+
+4. Lépés: A fordítás (Build) indítása a Venv-ből
+Ha feltelepültek, máris indíthatod a fordítást a már megszokott paranccsal (mivel a venv-ben vagyunk, a PyInstaller is onnan fut):
+
+python -m PyInstaller --noconsole --onefile --add-data "form.ui;." --collect-all pymupdf mainwindow.py
